@@ -1,14 +1,14 @@
-------------
-Hi Jon Snow,
-------------
+-----------------
+Hi Marcus Winter,
+-----------------
 
-Welcome to Hermes! We're very excited to have you on board.
+Welcome to Tribal! on board!
 
-* Firstname: Jon
-* Lastname: Snow
-* Birthday: 01/01/283
+* Firstname: Marcus
+* Lastname: Winter
+* Birthday: 01/01/1983
 
-To get started with Hermes, please click here: https://hermes-example.com/confirm?token=d9729feb74992cc3482b350163a1a010
+To get started with Tribal, please click here: https://hermes-example.com/confirm?token=d9729feb74992cc3482b350163a1a010
 
 Need help, or have questions? Just reply to this email, we'd love to help.
 

@@ -7,124 +7,16 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/e-phraim/go-playground/hermesSender/pkg"
 	"github.com/go-gomail/gomail"
+	"github.com/joho/godotenv"
 	"github.com/matcornic/hermes/v2"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-type welcome struct {
-}
-
-func (w *welcome) Name() string {
-	return "welcome"
-}
-
-func (w *welcome) Email() hermes.Email {
-	return hermes.Email{
-		Body: hermes.Body{
-			Name: "Jon Snow",
-			Intros: []string{
-				"Welcome to Hermes! We're very excited to have you on board.",
-			},
-			Dictionary: []hermes.Entry{
-				{Key: "Firstname", Value: "Jon"},
-				{Key: "Lastname", Value: "Snow"},
-				{Key: "Birthday", Value: "01/01/283"},
-			},
-			Actions: []hermes.Action{
-				{
-					Instructions: "To get started with Hermes, please click here:",
-					Button: hermes.Button{
-						Text: "Confirm your account",
-						Link: "https://hermes-example.com/confirm?token=d9729feb74992cc3482b350163a1a010",
-					},
-				},
-			},
-			Outros: []string{
-				"Need help, or have questions? Just reply to this email, we'd love to help.",
-			},
-		},
-	}
-}
-
 type example interface {
 	Email() hermes.Email
 	Name() string
-}
-
-func main() {
-
-	h := hermes.Hermes{
-		Product: hermes.Product{
-			Name: "Hermes",
-			Link: "https://example-hermes.com/",
-			Logo: "https://github.com/matcornic/hermes/blob/master/examples/gopher.png?raw=true",
-		},
-	}
-	sendEmails := os.Getenv("HERMES_SEND_EMAILS") == "true"
-
-	examples := []example{
-		new(welcome),
-		// new(reset),
-		// new(receipt),
-		// new(maintenance),
-		// new(inviteCode),
-	}
-
-	themes := []hermes.Theme{
-		new(hermes.Default),
-		new(hermes.Flat),
-	}
-
-	// Generate emails
-	for _, theme := range themes {
-		h.Theme = theme
-		for _, e := range examples {
-			generateEmails(h, e.Email(), e.Name())
-		}
-	}
-
-	// Send emails only when requested
-	if sendEmails {
-		port, _ := strconv.Atoi(os.Getenv("HERMES_SMTP_PORT"))
-		password := os.Getenv("HERMES_SMTP_PASSWORD")
-		SMTPUser := os.Getenv("HERMES_SMTP_USER")
-		if password == "" {
-			fmt.Printf("Enter SMTP password of '%s' account: ", SMTPUser)
-			bytePassword, _ := terminal.ReadPassword(0)
-			password = string(bytePassword)
-		}
-		smtpConfig := smtpAuthentication{
-			Server:         os.Getenv("HERMES_SMTP_SERVER"),
-			Port:           port,
-			SenderEmail:    os.Getenv("HERMES_SENDER_EMAIL"),
-			SenderIdentity: os.Getenv("HERMES_SENDER_IDENTITY"),
-			SMTPPassword:   password,
-			SMTPUser:       SMTPUser,
-		}
-		options := sendOptions{
-			To: os.Getenv("HERMES_TO"),
-		}
-		for _, theme := range themes {
-			h.Theme = theme
-			for _, e := range examples {
-				options.Subject = "Hermes | " + h.Theme.Name() + " | " + e.Name()
-				fmt.Printf("Sending email '%s'...\n", options.Subject)
-				htmlBytes, err := os.ReadFile(fmt.Sprintf("%v/%v.%v.html", h.Theme.Name(), h.Theme.Name(), e.Name()))
-				if err != nil {
-					panic(err)
-				}
-				txtBytes, err := os.ReadFile(fmt.Sprintf("%v/%v.%v.txt", h.Theme.Name(), h.Theme.Name(), e.Name()))
-				if err != nil {
-					panic(err)
-				}
-				err = send(smtpConfig, options, string(htmlBytes), string(txtBytes))
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-	}
 }
 
 func generateEmails(h hermes.Hermes, email hermes.Email, example string) {
@@ -210,4 +102,86 @@ func send(smtpConfig smtpAuthentication, options sendOptions, htmlBody string, t
 	d := gomail.NewDialer(smtpConfig.Server, smtpConfig.Port, smtpConfig.SMTPUser, smtpConfig.SMTPPassword)
 
 	return d.DialAndSend(m)
+}
+
+func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("ERROR!", err)
+	}
+
+	h := hermes.Hermes{
+		Product: hermes.Product{
+			Name: "Hermes",
+			Link: "https://example-hermes.com/",
+			Logo: "https://github.com/matcornic/hermes/blob/master/examples/gopher.png?raw=true",
+		},
+	}
+	sendEmails := os.Getenv("HERMES_SEND_EMAILS") == "true"
+	fmt.Println("HERMES_SEND_EMAILS:", sendEmails)
+
+	examples := []example{
+		// new(Welcome),
+		// &Welcome{},
+		&pkg.Welcome{},
+	}
+
+	themes := []hermes.Theme{
+		new(hermes.Default),
+		new(hermes.Flat),
+	}
+
+	// Generate emails
+	for _, theme := range themes {
+		h.Theme = theme
+		for _, e := range examples {
+			generateEmails(h, e.Email(), e.Name())
+		}
+	}
+
+	// Send emails only when requested
+	if sendEmails {
+		port, _ := strconv.Atoi(os.Getenv("HERMES_SMTP_PORT"))
+		password := os.Getenv("HERMES_SMTP_PASSWORD")
+		SMTPUser := os.Getenv("HERMES_SMTP_USER")
+		if password == "" {
+			fmt.Printf("Enter SMTP password of '%s' account: ", SMTPUser)
+			bytePassword, _ := terminal.ReadPassword(0)
+			password = string(bytePassword)
+		}
+		smtpConfig := smtpAuthentication{
+			Server:         os.Getenv("HERMES_SMTP_SERVER"),
+			Port:           port,
+			SenderEmail:    os.Getenv("HERMES_SENDER_EMAIL"),
+			SenderIdentity: os.Getenv("HERMES_SENDER_IDENTITY"),
+			SMTPPassword:   password,
+			SMTPUser:       SMTPUser,
+		}
+		fmt.Println(smtpConfig)
+		options := sendOptions{
+			To: os.Getenv("HERMES_TO"),
+		}
+		for _, theme := range themes {
+			h.Theme = theme
+			for _, e := range examples {
+				options.Subject = "Hermes | " + h.Theme.Name() + " | " + e.Name()
+				fmt.Printf("Sending email '%s'...\n", options.Subject)
+				htmlBytes, err := os.ReadFile(fmt.Sprintf("%v/%v.%v.html", h.Theme.Name(), h.Theme.Name(), e.Name()))
+				if err != nil {
+					panic(err)
+				}
+				txtBytes, err := os.ReadFile(fmt.Sprintf("%v/%v.%v.txt", h.Theme.Name(), h.Theme.Name(), e.Name()))
+				if err != nil {
+					panic(err)
+				}
+				err = send(smtpConfig, options, string(htmlBytes), string(txtBytes))
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+		fmt.Println("succesfully sent to with params\n", smtpConfig.SenderEmail, "\n", smtpConfig.SenderIdentity, "\n", smtpConfig.SMTPUser, "\n", options)
+
+	}
 }

@@ -4,6 +4,7 @@ go 1.21.4
 
 require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
+	github.com/joho/godotenv v1.5.1
 	github.com/matcornic/hermes/v2 v2.1.0
 	golang.org/x/crypto v0.19.0
 )
