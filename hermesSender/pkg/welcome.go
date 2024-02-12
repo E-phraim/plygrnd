@@ -14,13 +14,13 @@ func (w *Welcome) Name() string {
 func (w *Welcome) Email() hermes.Email {
 	return hermes.Email{
 		Body: hermes.Body{
-			Name: "Marcus Winter",
+			Name: "Ekemini Samuel",
 			Intros: []string{
 				"Welcome to Tribal! on board!",
 			},
 			Dictionary: []hermes.Entry{
-				{Key: "Firstname", Value: "Marcus"},
-				{Key: "Lastname", Value: "Winter"},
+				{Key: "Firstname", Value: "Ekemini"},
+				{Key: "Lastname", Value: "Samuel"},
 				{Key: "Birthday", Value: "01/01/1983"},
 			},
 			Actions: []hermes.Action{

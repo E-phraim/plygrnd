@@ -1,11 +1,11 @@
------------------
-Hi Marcus Winter,
------------------
+------------------
+Hi Ekemini Samuel,
+------------------
 
 Welcome to Tribal! on board!
 
-* Firstname: Marcus
-* Lastname: Winter
+* Firstname: Ekemini
+* Lastname: Samuel
 * Birthday: 01/01/1983
 
 To get started with Tribal, please click here: https://hermes-example.com/confirm?token=d9729feb74992cc3482b350163a1a010
